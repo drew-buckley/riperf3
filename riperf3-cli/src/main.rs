@@ -1,6 +1,6 @@
 use clap::Parser;
 use log::LevelFilter;
-use log4rs::append::console::ConsoleAppender;
+use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::config::{Appender, Config, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 
@@ -1115,9 +1115,21 @@ fn configure_log4rs(verbosity: u8) {
         .encoder(Box::new(PatternEncoder::new("{d} - {l} - {m}{n}")))
         .build();
 
+    let console = ConsoleAppender::builder()
+        .target(Target::Stderr)
+        .encoder(Box::new(PatternEncoder::new("{m}\n")))
+        .build();
+
     let config = Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .appender(Appender::builder().build("console", Box::new(console)))
         .logger(Logger::builder().build("app::backend::db", LevelFilter::Info))
+        .logger(
+            Logger::builder()
+                .appender("console")
+                .additive(false)
+                .build(riperf3::CONSOLE_LOG_TARGET, LevelFilter::Warn),
+        )
         .build(Root::builder().appender("stdout").build(level))
         .unwrap();
 

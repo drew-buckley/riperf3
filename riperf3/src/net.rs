@@ -802,7 +802,7 @@ pub fn apply_fq_rate(fd: &impl std::os::unix::io::AsFd, rate_bits_per_sec: u64) 
         // silence, everyone else gets GT's exact line. Widened to matter by
         // the #294 default flip — this was the one warning site left ungated.
         if !crate::macros::output_quiet() {
-            eprintln!("warning: Unable to set socket pacing");
+            log::warn!(target: crate::macros::CONSOLE_LOG_TARGET, "warning: Unable to set socket pacing");
         }
     }
 }

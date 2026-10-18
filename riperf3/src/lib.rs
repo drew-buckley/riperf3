@@ -105,6 +105,9 @@ pub use macros::render_timestamp as render_timestamp_prefix;
 /// follows iperf_err's logfile-or-stderr chooser.
 pub use macros::ErrorSinkGuard;
 
+/// Drew mod: lets use log!
+pub use macros::CONSOLE_LOG_TARGET;
+
 /// Parse-time RSA key-file validation (#395) — iperf3 loads auth keys inside
 /// its argument post-loop and stamps IESETCLIENTAUTH/IESETSERVERAUTH when
 /// they don't load; the CLI mirrors that by validating here before any run.

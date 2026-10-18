@@ -717,31 +717,33 @@ impl Server {
                         match &termination {
                             // #210: IECLIENTTERM, no "error - " prefix.
                             Termination::ClientTerminated => {
-                                eprintln!("{prefix}riperf3: {}", RiperfError::ClientTerminated)
+                                log::error!(target: crate::macros::CONSOLE_LOG_TARGET, "{prefix}riperf3: {}", RiperfError::ClientTerminated)
                             }
                             // #330: the mid/end-loop control EOF read-site line.
                             Termination::ControlClosed => {
-                                eprintln!("{prefix}riperf3: {CTRL_CLOSED_MSG}")
+                                log::error!(target: crate::macros::CONSOLE_LOG_TARGET, "{prefix}riperf3: {CTRL_CLOSED_MSG}")
                             }
                             // #325: IEMESSAGE, one line.
-                            Termination::UnknownMessage => eprintln!(
+                            Termination::UnknownMessage => log::error!(
+                                target: crate::macros::CONSOLE_LOG_TARGET,
                                 "{prefix}riperf3: error - {}",
                                 RiperfError::UnknownControlMessage
                             ),
                             // #330: IERECVRESULTS, the #248 errno-0 dangling ": ".
-                            Termination::RecvResultsFailed => eprintln!(
+                            Termination::RecvResultsFailed => log::error!(
+                                target: crate::macros::CONSOLE_LOG_TARGET,
                                 "{prefix}riperf3: error - {}: ",
                                 RiperfError::RecvResultsFailed
                             ),
                             // #371: IESENDMESSAGE/IESENDRESULTS — the live errno
                             // rides the carried message (no dangling ": ").
                             Termination::SendFailed(msg) => {
-                                eprintln!("{prefix}riperf3: error - {msg}")
+                                log::error!(target: crate::macros::CONSOLE_LOG_TARGET, "{prefix}riperf3: error - {msg}")
                             }
                             // #406: IERECVMESSAGE — the completed-exchange RST
                             // read; live errno in the carried message.
                             Termination::RecvMessageFailed(msg) => {
-                                eprintln!("{prefix}riperf3: error - {msg}")
+                                log::error!(target: crate::macros::CONSOLE_LOG_TARGET, "{prefix}riperf3: error - {msg}")
                             }
                             // Completed / Interrupted / SelfTerminated print no
                             // line here: a clean round is silent, and the
@@ -769,7 +771,8 @@ impl Server {
                     // sentence once and keeps serving; under -J the setup doc
                     // already carried it. #344: --timestamps stamps the line.
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: {CTRL_CLOSED_MSG}",
                             crate::macros::output_timestamp_prefix()
                         );
@@ -779,7 +782,8 @@ impl Server {
                     // #210: a setup-phase CLIENT_TERMINATE. IECLIENTTERM, no
                     // "error - " prefix; -J carried it in the setup doc.
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: {}",
                             crate::macros::output_timestamp_prefix(),
                             RiperfError::ClientTerminated
@@ -790,7 +794,8 @@ impl Server {
                     // #325: a setup-phase unrecognized byte. IEMESSAGE, one
                     // line; -J carried it in the setup doc.
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: error - {}",
                             crate::macros::output_timestamp_prefix(),
                             RiperfError::UnknownControlMessage
@@ -803,7 +808,8 @@ impl Server {
                     // the setup site; text prints iperf_err's stamped line.
                     // Keep-serving, exit 0 (GT's rc -1 class, like IEMESSAGE).
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: error - {}",
                             crate::macros::output_timestamp_prefix(),
                             RiperfError::DataIdleTimeout
@@ -815,7 +821,8 @@ impl Server {
                     // emitted at the site; text prints the strerror'd line
                     // (live errno, no dangling). Keep-serving, exit 0.
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: error - {e}",
                             crate::macros::output_timestamp_prefix()
                         );
@@ -829,7 +836,8 @@ impl Server {
                     // GT appends the live/stale strerror, live "Bad file
                     // descriptor"). Keep-serving, exit 0.
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: error - {}: ",
                             crate::macros::output_timestamp_prefix(),
                             RiperfError::RecvDataCookieFailed
@@ -861,7 +869,8 @@ impl Server {
                     // Display. (Fresh-process string; the stale-i_errno
                     // multi-round wrinkle is recorded at the auth gate.)
                     if !json && !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: error - no error",
                             crate::macros::output_timestamp_prefix()
                         );
@@ -875,7 +884,8 @@ impl Server {
                     if json {
                         self.emit_pretest_error_doc(&format!("error - {e}"), None);
                     } else if !crate::macros::output_quiet() {
-                        eprintln!(
+                        log::error!(
+                            target: crate::macros::CONSOLE_LOG_TARGET,
                             "{}riperf3: error - {e}",
                             crate::macros::output_timestamp_prefix()
                         );
@@ -2613,7 +2623,8 @@ impl Server {
             if !self.json_output && !self.json_stream && !crate::macros::output_quiet() {
                 // #344: iperf_err's --timestamps stamp (server_timer_proc
                 // prints through iperf_err directly).
-                eprintln!(
+                log::error!(
+                    target: crate::macros::CONSOLE_LOG_TARGET,
                     "{}riperf3: error - {msg}",
                     crate::macros::output_timestamp_prefix()
                 );
@@ -3991,7 +4002,8 @@ impl Server {
             Ok(s) => println!("{s}"),
             // #344: stamped for sink consistency (riperf3-internal class —
             // GT has no serialize-fail arm to match).
-            Err(e) => eprintln!(
+            Err(e) => log::error!(
+                target: crate::macros::CONSOLE_LOG_TARGET,
                 "{}riperf3: error - failed to serialize JSON: {e}",
                 crate::macros::output_timestamp_prefix()
             ),
@@ -4066,7 +4078,8 @@ impl Server {
                 );
             }
         } else if !crate::macros::output_quiet() {
-            eprintln!(
+            log::error!(
+                target: crate::macros::CONSOLE_LOG_TARGET,
                 "{}riperf3: error - {msg}",
                 crate::macros::output_timestamp_prefix()
             );
@@ -4357,7 +4370,8 @@ impl Server {
             // #339 r2b F2: iperf_err stamps its stderr line with the
             // --timestamps prefix (iperf_error.c:51-57, :77) — same
             // output_timestamp_prefix() the stdout banner rides.
-            eprintln!(
+            log::error!(
+                target: crate::macros::CONSOLE_LOG_TARGET,
                 "{}riperf3: {doc_error}",
                 crate::macros::output_timestamp_prefix()
             );

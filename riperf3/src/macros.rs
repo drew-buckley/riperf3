@@ -151,8 +151,8 @@ pub fn render_timestamp(_fmt: &str) -> String {
 }
 
 /// Console-quiet flag for library callers (#290): when set (run-scoped, via
-/// [`OutputQuietGuard`]), every console `println!`/`eprintln!` the crate makes
-/// is skipped — while `log::` records and the `--get-server-output` capture
+/// [`OutputQuietGuard`]), every console `println!` and [`CONSOLE_LOG_TARGET`]
+/// record the crate makes is skipped — while `log::` records and the `--get-server-output` capture
 /// tee keep working, so a quiet server can still relay its report on the
 /// wire. Process-global like OUTPUT_TITLE (one run at a time); visible across
 /// the reporter task, which a thread-local could not be.
@@ -185,6 +185,9 @@ impl Drop for OutputQuietGuard {
         OUTPUT_QUIET.fetch_sub(1, std::sync::atomic::Ordering::Relaxed);
     }
 }
+
+/// Drew mod: lets use log!
+pub const CONSOLE_LOG_TARGET: &str = "riperf3::console";
 
 /// The `--logfile` error-line sink (#364): when armed, the crate's
 /// iperf_err-shaped stderr lines (e.g. the client's SERVER-ERROR relay
@@ -230,8 +233,9 @@ impl Drop for ErrorSinkGuard {
 }
 
 /// Print one fully-formatted error line to the active sink (#364): append
-/// to the armed logfile, else stderr — stderr is also the fallback when the
-/// file cannot be opened, like the CLI's errexit sink (#198).
+/// to the armed logfile, else log it on [`CONSOLE_LOG_TARGET`] — the log
+/// record is also the fallback when the file cannot be opened, like the
+/// CLI's errexit sink (#198).
 pub(crate) fn err_println(line: &str) {
     if let Ok(g) = ERR_SINK.read() {
         if let Some(path) = g.as_deref() {
@@ -246,7 +250,7 @@ pub(crate) fn err_println(line: &str) {
             }
         }
     }
-    eprintln!("{line}");
+    log::error!(target: CONSOLE_LOG_TARGET, "{line}");
 }
 
 pub(crate) fn set_output_title(title: Option<String>) {

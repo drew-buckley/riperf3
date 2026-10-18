@@ -701,7 +701,7 @@ fn validate_results(value: serde_json::Value) -> Result<TestResultsJson> {
 /// caller gets silence, everyone else gets GT's exact line.
 fn gt_warning(msg: std::fmt::Arguments<'_>) {
     if !crate::macros::output_quiet() {
-        eprintln!("warning: {msg}");
+        log::warn!(target: crate::macros::CONSOLE_LOG_TARGET, "warning: {msg}");
     }
 }
 
